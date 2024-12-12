@@ -671,9 +671,19 @@ func (s SparseConfFeeSource) parseResponse(r io.Reader) (
 	}
 
 	if resp.MinRelayFeerate == 0 {
-		log.Errorf("No min relay fee rate available, using default %v",
-			FeePerKwFloor)
-		resp.MinRelayFeerate = FeePerKwFloor.FeePerKVByte()
+		//
+		feePerKwFloor = resp.FeeByBlockTarget[]
+		log.Errorf("No min relay fee rate available, using lowest retrieved %v",
+			feePerKwFloor)
+
+		// Find the maximum key in FeeByBlockTarget
+		var maxKey uint32
+		for key := range resp.FeeByBlockTarget {
+			if key > maxKey {
+				maxKey = key
+			}
+		}
+		resp.MinRelayFeerate = resp.feePerKwFloor[maxKey]
 	}
 
 	return resp, nil
